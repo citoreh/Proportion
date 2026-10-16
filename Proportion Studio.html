@@ -1,0 +1,444 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Proportion Studio</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: tailor's fitting sheet — shoot setup on top, sliders on the left, live figure + prompt card pinned on the right */
+:root{
+  --bg:#eef0ec; --panel:#f8f9f6; --ink:#1f2a2c; --muted:#5d6a6b; --line:#cfd5cf;
+  --accent:#e3a51b; --accent-ink:#3a2a00; --skin:#e8b996; --cloth:#3d5a66; --cloth2:#6f8c97; --wear:#b5523b;
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#161c1e; --panel:#1e2629; --ink:#e7ece9; --muted:#9aa7a6; --line:#33403f;
+  --accent:#f0b630; --accent-ink:#241a00; --skin:#d9a582; --cloth:#5d8494; --cloth2:#8fb0bc; --wear:#d8735a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#161c1e; --panel:#1e2629; --ink:#e7ece9; --muted:#9aa7a6; --line:#33403f;
+  --accent:#f0b630; --accent-ink:#241a00; --skin:#d9a582; --cloth:#5d8494; --cloth2:#8fb0bc; --wear:#d8735a; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto;padding-block:28px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:12px 24px;margin-bottom:22px}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(28px,4.5vw,44px);line-height:1;margin:0;letter-spacing:-.02em;text-wrap:balance}
+h1 span{background:var(--accent);color:var(--accent-ink);padding:0 .18em;border-radius:4px}
+.lede{color:var(--muted);margin:6px 0 0;max-width:58ch}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+button,select,input[type=text]{font:inherit;color:var(--ink)}
+.btn{border:1px solid var(--line);background:var(--panel);padding:8px 14px;border-radius:999px;cursor:pointer;font-weight:500}
+.btn:hover{border-color:var(--ink)}
+.btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,440px);gap:24px;align-items:start}
+@media (max-width:860px){.grid{grid-template-columns:minmax(0,1fr)}}
+.setup{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin-bottom:26px;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+.setup .wide{grid-column:1/-1}
+.field label{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;font-weight:600}
+.field input,.field select{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+.field .hint{font-size:12px;color:var(--muted);margin:4px 0 0}
+.group h2{font-family:var(--display);font-weight:500;font-size:20px;margin:0 0 6px;display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px}
+.group h2 small{font-family:var(--body);font-size:12px;color:var(--muted);font-weight:400}
+.group+.group{margin-top:28px}
+.wardrobe-pick{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 10px}
+.chip{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:5px 12px;font-size:13px;cursor:pointer;color:var(--muted)}
+.chip[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.wear-line{font-size:13px;color:var(--muted);margin:0 0 8px;font-style:italic}
+.rows{border-top:1px solid var(--line)}
+.row{display:grid;grid-template-columns:150px minmax(0,1fr) 112px;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}
+.row .name{font-weight:500;line-height:1.25}
+.row .tier{font-family:var(--mono);font-size:12px;text-align:right;color:var(--muted);cursor:pointer;white-space:nowrap}
+.row.on .tier{color:var(--ink);font-weight:500}
+.row.on .name::after{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin-left:7px;vertical-align:middle}
+@media (max-width:520px){.row{grid-template-columns:96px minmax(0,1fr) 92px;gap:8px}.row .name{font-size:13px}}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:22px;background:transparent;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:10px;border-radius:3px;background:
+  repeating-linear-gradient(90deg,var(--muted) 0 1px,transparent 1px calc(100%/7)),var(--line);background-size:calc(100% - 2px) 4px,100% 100%;background-position:1px 100%,0 0;background-repeat:no-repeat}
+input[type=range]::-moz-range-track{height:10px;border-radius:3px;background:var(--line)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:22px;margin-top:-6px;border-radius:3px;background:var(--accent);border:2px solid var(--ink)}
+input[type=range]::-moz-range-thumb{width:12px;height:18px;border-radius:3px;background:var(--accent);border:2px solid var(--ink)}
+.side{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);display:flex;flex-direction:column;gap:14px}
+@media (max-width:860px){.side{position:static}}
+.figure{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;justify-content:center;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px);background-size:100% 24px}
+.figure svg{width:100%;max-width:240px;height:auto;overflow:visible}
+.part{transform-box:fill-box;transition:transform .25s ease,opacity .2s}
+.slot{opacity:0}.slot.show{opacity:1}
+@media (prefers-reduced-motion:reduce){.part{transition:none}}
+.out{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+.out-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.seg button{border:0;background:transparent;padding:5px 11px;font-size:12px;cursor:pointer;color:var(--muted)}
+.seg button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.prompt{font-family:var(--mono);font-size:13px;line-height:1.6;white-space:pre-wrap;word-break:break-word;margin:0;max-height:360px;overflow:auto}
+.prompt b{background:color-mix(in srgb,var(--accent) 30%,transparent);font-weight:500;border-radius:2px}
+.neg{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+.neg .lbl{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.meta{font-size:12px;color:var(--muted);margin-top:10px;display:flex;justify-content:space-between;gap:8px}
+.check{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted)}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Proportion <span>Studio</span></h1>
+      <p class="lede">Set up the shoot, pick a wardrobe, then push any body part or garment bigger or smaller. Every slider starts at normal and the prompt rewrites itself as you go.</p>
+    </div>
+    <div class="tools">
+      <button class="btn" id="random">Surprise me</button>
+      <button class="btn" id="reset">Reset sliders</button>
+    </div>
+  </header>
+
+  <div class="grid">
+    <main>
+      <div class="setup">
+        <div class="field wide"><label for="subject">Model</label><input type="text" id="subject" value="a tall fashion model in her twenties with sleek dark hair and a confident expression"></div>
+        <div class="field"><label for="style">Shoot type</label><select id="style"></select></div>
+        <div class="field"><label for="light">Lighting</label><select id="light"></select></div>
+        <div class="field"><label for="frame">Framing</label><select id="frame"></select></div>
+        <div class="field"><label for="scene">Backdrop</label><input type="text" id="scene" list="scenes" value="on a seamless pale grey paper backdrop">
+          <datalist id="scenes">
+            <option value="on a seamless pale grey paper backdrop"><option value="against a saturated tangerine colour backdrop"><option value="in a raw concrete minimalist studio">
+            <option value="inside a marble-and-brass luxury boutique"><option value="on a busy London high street"><option value="on a Tehran rooftop at dusk with the Alborz mountains behind">
+            <option value="in sand dunes at sunset"><option value="in a neon-lit Tokyo alley at night"><option value="on a white infinity cove with a single prop stool">
+          </datalist></div>
+        <div class="field"><label for="brand">Brand or label (optional)</label><input type="text" id="brand" placeholder="e.g. your own label">
+          <p class="hint">Added as styling direction. Many generators blur or block real logos.</p></div>
+      </div>
+
+      <section class="group"><h2>Body <small>Anatomy scale</small></h2><div class="rows" id="body"></div></section>
+
+      <section class="group"><h2>Wardrobe <small>The outfit is always worn; move a slider to rescale a piece</small></h2>
+        <div class="wardrobe-pick" id="wardrobes" role="group" aria-label="Wardrobe"></div>
+        <p class="wear-line" id="wearLine"></p>
+        <div class="rows" id="costume"></div></section>
+
+      <section class="group"><h2>Accessories <small>Join the prompt once moved</small></h2><div class="rows" id="acc"></div></section>
+
+      <p class="check" style="margin-top:18px"><input type="checkbox" id="lock" checked><label for="lock">Tell the model to keep every untouched body part at natural proportions</label></p>
+    </main>
+
+    <aside class="side">
+      <div class="figure"><svg viewBox="0 0 200 350" aria-label="Proportion preview figure">
+        <g class="part" data-k="legs" style="transform-origin:50% 0%">
+          <rect x="82" y="222" width="15" height="86" rx="4" fill="var(--cloth)"/>
+          <rect x="103" y="222" width="15" height="86" rx="4" fill="var(--cloth)"/>
+          <g class="part slot" data-slot="legs" style="transform-origin:50% 0%"><rect x="79" y="222" width="42" height="50" rx="6" fill="var(--wear)" opacity=".85"/></g>
+        </g>
+        <g class="part" data-k="feet" style="transform-origin:50% 0%">
+          <ellipse cx="87" cy="312" rx="11" ry="5" fill="var(--ink)"/><ellipse cx="113" cy="312" rx="11" ry="5" fill="var(--ink)"/>
+          <g class="part slot" data-slot="feet" style="transform-origin:50% 30%"><ellipse cx="87" cy="312" rx="14" ry="7" fill="var(--wear)" stroke="var(--ink)" stroke-width="1.5"/><ellipse cx="113" cy="312" rx="14" ry="7" fill="var(--wear)" stroke="var(--ink)" stroke-width="1.5"/></g>
+        </g>
+        <g class="part" data-k="arms" style="transform-origin:50% 0%">
+          <rect x="58" y="126" width="11" height="84" rx="5" fill="var(--cloth)"/>
+          <g class="part slot" data-slot="wrist" style="transform-origin:50% 50%"><rect x="56" y="200" width="15" height="8" rx="2" fill="var(--accent)" stroke="var(--ink)"/></g>
+          <g class="part" data-k="hands" style="transform-origin:50% 20%"><circle cx="63.5" cy="216" r="8" fill="var(--skin)"/></g>
+        </g>
+        <g class="part" data-k="arms" style="transform-origin:50% 0%">
+          <rect x="131" y="126" width="11" height="84" rx="5" fill="var(--cloth)"/>
+          <g class="part slot" data-slot="wrist" style="transform-origin:50% 50%"><rect x="129" y="200" width="15" height="8" rx="2" fill="var(--accent)" stroke="var(--ink)"/></g>
+          <g class="part" data-k="hands" style="transform-origin:50% 20%"><circle cx="136.5" cy="216" r="8" fill="var(--skin)"/></g>
+          <g class="part slot" data-slot="bag" style="transform-origin:30% 0%">
+            <path d="M134 220 q8 -8 16 0" fill="none" stroke="var(--ink)" stroke-width="2"/>
+            <rect x="130" y="220" width="24" height="18" rx="3" fill="var(--accent)" stroke="var(--ink)" stroke-width="1.5"/></g>
+        </g>
+        <g class="part" data-k="shoulders" style="transform-origin:50% 50%"><rect x="64" y="118" width="72" height="18" rx="9" fill="var(--cloth)"/></g>
+        <rect x="72" y="124" width="56" height="102" rx="12" fill="var(--cloth)"/>
+        <g class="part" data-k="belly" style="transform-origin:50% 40%"><ellipse cx="100" cy="190" rx="25" ry="27" fill="var(--cloth2)"/></g>
+        <g class="part slot" data-slot="top" style="transform-origin:50% 0%"><path d="M66 120 h68 l6 92 h-26 l-14 -60 l-14 60 h-26 z" fill="var(--wear)" stroke="var(--ink)" stroke-width="1.2" opacity=".92"/></g>
+        <g class="part slot" data-slot="waist" style="transform-origin:50% 50%"><rect x="72" y="212" width="56" height="9" fill="var(--ink)"/><rect x="93" y="210" width="14" height="13" rx="2" fill="var(--accent)" stroke="var(--ink)"/></g>
+        <g class="part" data-k="neck" style="transform-origin:50% 100%">
+          <rect x="94" y="98" width="12" height="24" fill="var(--skin)"/>
+          <g class="part" data-k="head" style="transform-origin:50% 100%">
+            <g class="part" data-k="ears" style="transform-origin:50% 50%"><ellipse cx="74" cy="76" rx="5" ry="8" fill="var(--skin)"/></g>
+            <g class="part" data-k="ears" style="transform-origin:50% 50%"><ellipse cx="126" cy="76" rx="5" ry="8" fill="var(--skin)"/></g>
+            <g class="part slot" data-slot="ear" style="transform-origin:50% 0%"><circle cx="74" cy="90" r="3.5" fill="none" stroke="var(--accent)" stroke-width="2"/></g>
+            <g class="part slot" data-slot="ear" style="transform-origin:50% 0%"><circle cx="126" cy="90" r="3.5" fill="none" stroke="var(--accent)" stroke-width="2"/></g>
+            <circle cx="100" cy="74" r="26" fill="var(--skin)"/>
+            <g class="part" data-k="eyes"><circle cx="91" cy="70" r="3.4" fill="var(--ink)"/></g>
+            <g class="part" data-k="eyes"><circle cx="109" cy="70" r="3.4" fill="var(--ink)"/></g>
+            <g class="part slot" data-slot="eyes" style="transform-origin:50% 50%"><rect x="81" y="64" width="17" height="11" rx="4" fill="var(--ink)" opacity=".85"/><rect x="102" y="64" width="17" height="11" rx="4" fill="var(--ink)" opacity=".85"/><path d="M98 69h4" stroke="var(--ink)" stroke-width="1.6"/></g>
+            <g class="part" data-k="nose" style="transform-origin:50% 20%"><path d="M100 74 l-4 10 h8 z" fill="color-mix(in srgb,var(--skin) 70%,var(--ink))"/></g>
+            <g class="part" data-k="mouth"><path d="M92 90 q8 6 16 0" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round"/></g>
+            <g class="part slot" data-slot="head" style="transform-origin:50% 100%"><path d="M74 54 q26 -40 52 0 z" fill="var(--wear)" stroke="var(--ink)" stroke-width="1.2"/><rect x="64" y="51" width="72" height="5" rx="2" fill="var(--ink)"/></g>
+          </g>
+        </g>
+        <g class="part slot" data-slot="neck" style="transform-origin:50% 50%"><path d="M100 126 l-11 -7 v14 z M100 126 l11 -7 v14 z" fill="var(--accent)" stroke="var(--ink)" stroke-width="1"/></g>
+      </svg></div>
+
+      <div class="out">
+        <div class="out-head">
+          <div class="seg" role="group" aria-label="Prompt format">
+            <button data-f="natural" aria-pressed="true">Natural</button>
+            <button data-f="mj" aria-pressed="false">Midjourney</button>
+            <button data-f="sd" aria-pressed="false">Stable Diffusion</button>
+          </div>
+          <button class="btn primary" id="copy">Copy prompt</button>
+        </div>
+        <pre class="prompt" id="prompt"></pre>
+        <div class="neg" id="negWrap" hidden><div class="lbl">Negative prompt</div><pre class="prompt" id="neg"></pre></div>
+        <div class="meta"><span id="count"></span><span id="words"></span></div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+const TIERS={"-3":"tiny","-2":"small","-1":"a bit small","0":"normal","1":"a bit large","2":"oversized","3":"huge","4":"colossal"};
+const BODY=[
+ {k:"head",n:"Head",big:["a slightly large head","an oversized head about one and a half times normal size","a huge head as big as a beach ball, strikingly top-heavy on the body","a colossal head three times wider than the shoulders, dwarfing the entire body"],small:["a slightly small head","a noticeably small head, undersized for the body","a tiny pinhead-sized head perched on the shoulders"]},
+ {k:"eyes",n:"Eyes",big:["slightly large, wide-set eyes","oversized round eyes","huge saucer-sized eyes filling much of the face","colossal eyes as big as dinner plates, taking up half the face"],small:["slightly small eyes","small narrow eyes","tiny bead-like pinpoint eyes"]},
+ {k:"nose",n:"Nose",big:["a slightly prominent nose","an oversized bulbous nose","a huge nose the size of a fist, dominating the face","a colossal nose as long as the forearm, drooping past the chin"],small:["a slightly small nose","a small button nose","a tiny barely-there nose"]},
+ {k:"ears",n:"Ears",big:["slightly large ears","oversized protruding ears","huge ears as big as hands, sticking out like satellite dishes","colossal ears taller than the head itself, fanning out like elephant ears"],small:["slightly small ears","small neat ears","tiny ears no bigger than fingertips"]},
+ {k:"mouth",n:"Mouth",big:["a slightly wide mouth","an oversized wide mouth and full lips","a huge mouth stretching ear to ear","a colossal mouth spanning the whole lower face"],small:["a slightly small mouth","a small pursed mouth","a tiny pinhole mouth"]},
+ {k:"neck",n:"Neck",big:["a slightly long neck","an elongated swan-like neck","a very long giraffe-like neck","an absurdly long neck stretching as tall as the torso"],small:["a slightly short neck","a short thick neck","almost no neck, head sitting directly on the shoulders"]},
+ {k:"shoulders",n:"Shoulders",big:["slightly broad shoulders","oversized broad shoulders","huge shoulders twice normal width","colossal shoulders as wide as a doorway, the torso tapering into a giant V"],small:["slightly narrow shoulders","narrow sloping shoulders","tiny shoulders barely wider than the neck"]},
+ {k:"arms",n:"Arms",big:["slightly long arms","oversized long, muscular arms","huge long arms reaching down to the knees","colossal arms as thick as tree trunks, reaching the floor"],small:["slightly short arms","short stubby arms","tiny T-rex-like arms"]},
+ {k:"hands",n:"Hands",big:["slightly large hands","oversized hands","huge hands as big as dinner plates","colossal hands larger than the head"],small:["slightly small hands","small dainty hands","tiny doll-sized hands"]},
+ {k:"belly",n:"Belly",big:["a slight round belly","an oversized round belly","a huge barrel-like belly straining the clothes","a colossal belly as wide as a beach ball, pushing far out in front"],small:["a slightly flat stomach","a very slim, flat stomach","an extremely narrow waist"]},
+ {k:"legs",n:"Legs",big:["slightly long legs","long elongated legs","huge stilt-like legs, half again as tall as normal","colossal legs twice normal length, towering like stilts"],small:["slightly short legs","short stubby legs","tiny legs barely holding up the body"]},
+ {k:"feet",n:"Feet",big:["slightly large feet","oversized feet","huge feet as long as a forearm","colossal feet as long as the legs, like flippers"],small:["slightly small feet","small dainty feet","tiny pointed feet"]}
+];
+// costume item: n=noun, pl=plural, c3/c4=huge/colossal comparison, t=tiny comparison, s=figure slot
+const I=(k,n,s,c3,c4,t,pl=false)=>({k,n,s,c3,c4,t,pl});
+const WARDROBES={
+ street:{label:"Streetwear",wear:"wearing modern streetwear: a puffer jacket over a hoodie, cargo trousers, chunky sneakers, a baseball cap, a chain necklace and a crossbody bag",items:[
+  I("cap","baseball cap","head","with a brim as wide as an umbrella","with a brim wider than the shoulders, shading the whole body","perched on the crown like a bottle cap"),
+  I("puffer","puffer jacket","top","with quilted panels inflated like a life raft, swallowing the torso","so inflated it forms a giant cloud-like sphere around the body with only the head and feet poking out","cropped so short it barely covers the chest"),
+  I("hoodie","hoodie hood","neck","pooling around the shoulders like a sail","large enough to engulf the whole upper body in fabric folds","shrunk to a tight little cowl"),
+  I("cargo","cargo trousers","legs","with pockets as big as backpacks and legs as wide as barrels","with legs so voluminous they billow like ship sails around the body","cropped and skin-tight at mid-calf",true),
+  I("sneakers","chunky sneakers","feet","as big as shoeboxes with towering soles","as long as skateboards with soles a foot thick","barely covering the toes",true),
+  I("chain","chain necklace","neck","with links as thick as fingers, hanging to the waist","with links as big as bicycle chains, draped heavily to the knees","as fine as a thread"),
+  I("crossbody","crossbody bag","bag","as big as a travel duffel","bigger than the torso, worn across the body like a shield","the size of a matchbox")]},
+ lux:{label:"Luxury fashion",wear:"wearing a luxury designer look: a sculptural structured blazer, a wide-brimmed hat, statement sunglasses, a monogram-print leather handbag, a gold logo belt and pointed platform heels",items:[
+  I("brim","wide-brimmed hat","head","with a brim as wide as a café table","with a brim as wide as a car, casting the whole set in shadow","balanced on the head like a coaster"),
+  I("blazer","structured blazer","top","with sculpted shoulder pads jutting out like wings","with shoulders three times body width, an architectural silhouette like a runway sculpture","cropped and tightly fitted like a child's jacket"),
+  I("shades","statement sunglasses","eyes","with lenses as big as saucers","wider than the head, lenses like car headlights","as small as round pinhole spectacles",true),
+  I("handbag","monogram-print leather handbag","bag","as big as a suitcase","bigger than the model carrying it, propped against the leg","the size of a lipstick case"),
+  I("logobelt","gold logo belt","waist","with a buckle as big as a hardback book","with a buckle covering the whole waist like a breastplate","with a buckle no bigger than a fingernail"),
+  I("heels","pointed platform heels","feet","with platforms as tall as bricks","with stiletto heels as tall as stilts, lifting the model a metre into the air","as small as doll shoes",true)]},
+ business:{label:"Business",wear:"wearing a sharp business suit: a tailored suit jacket with peak lapels, a silk necktie, a wristwatch with cufflinks, polished oxford shoes and a leather briefcase",items:[
+  I("lapels","tailored suit jacket with peak lapels","top","with lapels as wide as the chest","with lapels so vast they flare past the shoulders like wings","tight and shrunken, sleeves halfway up the forearm"),
+  I("tie","silk necktie","neck","as wide as a placemat, hanging to the knees","as wide as a door, trailing on the floor","as thin as a shoelace"),
+  I("watch","wristwatch","wrist","with a dial as big as a saucer","with a dial as big as a wall clock strapped to the wrist","as small as a shirt button"),
+  I("oxfords","polished oxford shoes","feet","as long as rowing oars","as long as canoes, gleaming","barely bigger than the toes",true),
+  I("briefcase","leather briefcase","bag","as big as a steamer trunk","bigger than the businessperson, carried with effort","the size of a wallet")]},
+ sport:{label:"Sportswear",wear:"wearing performance sportswear: an oversized team jersey, track shorts, a sweatband, running shoes, wireless headphones and a gym duffel",items:[
+  I("jersey","team jersey","top","hanging down to the ankles like a dress","so large it billows like a parachute around the body","cropped and stretched tight like a toddler's top"),
+  I("sweatband","headband","head","as wide as a turban","as tall as a stovepipe hat","as thin as a hair tie"),
+  I("headphones","wireless headphones","ear","with ear cups as big as dinner plates","with ear cups as big as car tyres",
+   "as small as hearing aids",true),
+  I("runners","running shoes","feet","with foam soles as thick as cushions","with soles a metre tall like springs","as small as baby booties",true),
+  I("duffel","gym duffel bag","bag","as big as a sofa cushion","big enough to fit the athlete inside","the size of a pencil case")]},
+ persian:{label:"Iranian traditional",wear:"wearing traditional Iranian dress: a long qaba robe with a termeh-embroidered vest, a silk sash, a felt kolah hat, handwoven giveh shoes and a turquoise firuzeh necklace",items:[
+  I("kolah","felt kolah hat","head","as tall as a stovepipe","towering as tall as the wearer","no bigger than a thimble"),
+  I("termeh","termeh-embroidered vest over a long qaba robe","top","with paisley boteh patterns as big as hands and sleeves pooling on the floor","with a robe that spreads in a vast embroidered train across the floor","tight and cropped above the waist"),
+  I("sash","silk sash","waist","wrapped thick as a lifebuoy around the waist","so long its ends trail metres behind","as thin as a ribbon"),
+  I("giveh","handwoven giveh shoes","feet","with toes as long as gondolas","as long as small boats, their white cotton weave clearly visible","as small as walnut shells",true),
+  I("firuzeh","turquoise firuzeh necklace","neck","with stones as big as eggs","with stones as big as fists hanging to the waist","with grains of turquoise like seed beads")]},
+ japan:{label:"Japanese",wear:"wearing a traditional Japanese kimono with wide furisode sleeves, a wide obi sash, a kanzashi hair ornament, geta wooden sandals and a folding paper fan",items:[
+  I("kanzashi","kanzashi hair ornament","head","with silk flowers as big as hydrangea heads","rising above the head like a blossoming tree","as small as a hairpin"),
+  I("furisode","kimono with furisode sleeves","top","with sleeves sweeping to the floor like banners","with sleeves so long they fan out across the ground like wings","tightly tailored with short sleeves"),
+  I("obi","obi sash","waist","with a bow as big as a backpack","with a bow larger than the torso, like giant butterfly wings","as narrow as a belt"),
+  I("geta","geta wooden sandals","feet","with wooden teeth as tall as books","raised on wooden stilts a metre high",
+   "as small as matchboxes",true),
+  I("fan","folding paper fan","bag","as wide as an umbrella","as wide as a wall mural when opened","the size of a postage stamp")]},
+ india:{label:"South Asian",wear:"wearing a richly embroidered sherwani with a dupatta stole, a safa turban, jhumka earrings, gold bangles and embroidered mojari slippers",items:[
+  I("safa","safa turban","head","wound as tall and wide as a cake tier","towering higher than the wearer, its tail trailing to the floor","no larger than a teacup"),
+  I("sherwani","embroidered sherwani","top","with a hem pooling on the floor and gold embroidery the size of dinner plates","sweeping into a vast embroidered train like a wedding carpet","fitted short and tight like a waistcoat"),
+  I("dupatta","dupatta stole","neck","draped wide as a bedsheet","flowing metres long in the air like a banner","as narrow as a scarf ribbon"),
+  I("jhumka","jhumka earrings","ear","as big as temple bells","hanging down past the shoulders like chandeliers","as small as pinheads",true),
+  I("bangles","gold bangles","wrist","as wide as bracelets for an elephant","stacked up to the elbow, each as big as a hula hoop","as fine as threads of wire",true),
+  I("mojari","embroidered mojari slippers","feet","with curled toes as long as the shin","with toes curling up like boat prows",
+   "as small as almonds",true)]},
+ westafrica:{label:"West African",wear:"wearing a flowing agbada robe in bold printed fabric, a gele headwrap, a coral bead necklace and leather sandals",items:[
+  I("gele","gele headwrap","head","folded as wide as the shoulders","sculpted into a towering fan wider than the body","small and neatly tied like a scarf"),
+  I("agbada","agbada robe","top","with sleeves spreading as wide as outstretched arms","billowing out in a vast sweep of fabric like a sail",
+   "shrunk to a short fitted tunic"),
+  I("coral","coral bead necklace","neck","with beads as big as plums","with beads as big as oranges piled to the chest","with beads like grains of rice"),
+  I("sandals","leather sandals","feet","as long as rowing oars","as long as snowboards","barely covering the soles",true)]},
+ mexico:{label:"Mexican charro",wear:"wearing a Mexican charro suit with silver botonadura buttons, a wide sombrero, a woven serape, a tooled leather belt and cowboy boots",items:[
+  I("sombrero","sombrero","head","with a brim as wide as a café table","with a brim wider than a car, shading the entire scene","no bigger than a cupcake"),
+  I("charro","charro jacket with silver botonadura","top","with silver buttons as big as coins and padded shoulders","with silver buttons as big as plates gleaming down the sleeves","cropped tight above the waist"),
+  I("serape","woven serape","neck","draped as wide as a blanket","flowing metres long like a striped banner","as thin as a scarf"),
+  I("tooled","tooled leather belt","waist","with a buckle as big as a hardback book","with a buckle covering the whole midsection",
+   "with a buckle no bigger than a fingernail"),
+  I("boots","cowboy boots","feet","with heels as tall as bricks","as tall as the legs themselves","as small as baby boots",true)]},
+ scot:{label:"Scottish Highland",wear:"wearing Highland dress: a tartan kilt, a tweed jacket, a sporran, a balmoral bonnet, a tartan sash and brogues",items:[
+  I("balmoral","balmoral bonnet","head","as wide as a café table","as wide as a parasol, toorie bobble the size of a football",
+   "the size of a coaster"),
+  I("tweed","tweed jacket","top","with shoulders jutting out like a cliff edge","so oversized the sleeves drape to the floor",
+   "shrunken with sleeves halfway up the arms"),
+  I("kilt","tartan kilt","legs","with pleats fanning out as wide as a ballgown","so voluminous it spreads like a tartan tent","as short and narrow as a ruffle"),
+  I("sporran","sporran","waist","as big as a backpack","as big as a barrel","the size of a coin purse"),
+  I("brogues","brogues","feet","as long as rowing oars","as long as canoes","barely covering the toes",true)]}
+};
+const ACC=[
+ I("sunglasses","sunglasses","eyes","with lenses as big as saucers","wider than the head, lenses like car headlights","as small as pinholes",true),
+ I("hoops","hoop earrings","ear","as big as dinner plates","as big as hula hoops, grazing the shoulders","as small as pinheads",true),
+ I("rings","stacked rings","wrist","each as big as a doughnut","as big as bracelets, weighing down the fingers","as fine as threads",true),
+ I("phone","smartphone in hand","bag","as big as a laptop","as big as a door","the size of a stamp"),
+ I("umbrella","umbrella","bag","with a canopy as wide as a café parasol","with a canopy as wide as a circus tent","the size of a cocktail umbrella"),
+ I("scarf","knitted scarf","neck","wrapped as thick as a lifebuoy","so long it trails metres across the ground","as thin as a ribbon")
+];
+const STYLES={
+ "High-fashion editorial":{lead:"A high-fashion magazine editorial photograph of",tail:"shot on a medium-format camera with an 80mm lens at f/8, couture styling, true-to-life skin texture with visible pores, crisp fabric detail",photo:true,light:"softbox"},
+ "Luxury ad campaign":{lead:"A luxury advertising campaign photograph of",tail:"polished commercial retouching, rich controlled colour grade, premium brand aesthetic, clean composition with space for ad copy",photo:true,light:"softbox"},
+ "Studio portrait":{lead:"A studio portrait photograph of",tail:"85mm lens, tack-sharp focus, neutral colour accuracy, professional retouching",photo:true,light:"softbox"},
+ "Streetwear lookbook":{lead:"A streetwear brand lookbook photograph of",tail:"35mm lens, confident relaxed pose, subtle film grain, contemporary youth-culture styling",photo:true,light:"flash"},
+ "Street-style snap":{lead:"A fashion-week street-style photograph of",tail:"50mm lens, shallow depth of field, real city atmosphere, candid mid-stride moment",photo:true,light:"natural"},
+ "Cinematic film still":{lead:"A cinematic film still of",tail:"anamorphic lens, widescreen composition, moody colour grade, shot on 35mm film",photo:true,light:"rim"},
+ "Editorial caricature (illustrated)":{lead:"A full-body editorial caricature illustration of",tail:"bold ink linework, flat watercolour washes, witty magazine-cover style",photo:false,light:"softbox"},
+ "Stylized 3D render":{lead:"A full-body stylized 3D character render of",tail:"soft global illumination, subsurface skin shading, polished animated-film look",photo:false,light:"softbox"}
+};
+const LIGHTS={
+ softbox:{n:"Softbox studio",t:"lit by a large octabox key light with soft fill and a subtle hair light, clean controlled shadows"},
+ flash:{n:"Hard editorial flash",t:"lit by hard direct on-camera flash with crisp graphic shadows"},
+ rim:{n:"Dramatic rim light",t:"low-key lighting with strong rim lights carving the silhouette out of darkness"},
+ natural:{n:"Natural daylight",t:"soft natural daylight with gentle open shade"},
+ window:{n:"Window light",t:"lit by a single large window, soft directional light with deep falloff"},
+ golden:{n:"Golden hour",t:"warm golden-hour sunlight with long shadows and a glowing backlit outline"},
+ neon:{n:"Neon night",t:"lit by saturated pink and cyan neon signs with wet reflective highlights"}
+};
+const FRAMES={
+ full:{n:"Full body, eye level",t:"full body visible head to toe, camera at eye level"},
+ low:{n:"Full body, low angle",t:"full body visible head to toe, low camera angle looking up to emphasise scale"},
+ wide:{n:"Wide, with environment",t:"wide shot with the full figure small enough to show the surroundings and make the scale readable"},
+ three:{n:"Three-quarter length",t:"three-quarter length framing from the knees up"}
+};
+const $=id=>document.getElementById(id);
+const fill=(sel,obj,key="n")=>Object.entries(obj).forEach(([k,v])=>$(sel).add(new Option(typeof v==="string"?v:(v[key]||k),k)));
+Object.keys(STYLES).forEach(s=>$("style").add(new Option(s,s)));
+fill("light",LIGHTS); fill("frame",FRAMES);
+$("light").value="softbox";
+
+const state={}; BODY.forEach(p=>state[p.k]=0); ACC.forEach(p=>state[p.k]=0);
+Object.values(WARDROBES).forEach(w=>w.items.forEach(i=>state[i.k]=0));
+let wardrobe="lux", format="natural";
+
+function itemPhrase(it,v){
+ const a=w=>it.pl?"":(w==="an"?"an ":"a ");
+ if(v===1) return `${a()}slightly oversized ${it.n}`;
+ if(v===2) return `${a("an")}oversized ${it.n}, about twice its usual size`;
+ if(v===3) return `${a()}huge ${it.n} ${it.c3}`;
+ if(v===4) return `${a()}colossal ${it.n} ${it.c4}`;
+ if(v===-1) return `${a()}slightly undersized ${it.n}`;
+ if(v===-2) return `${a()}noticeably small ${it.n}`;
+ return `${a()}tiny ${it.n} ${it.t}`;
+}
+function phrase(p,v){return p.big?(v>0?p.big[v-1]:p.small[-v-1]):itemPhrase(p,v)}
+const titleCase=s=>s.charAt(0).toUpperCase()+s.slice(1);
+
+function makeRow(p,host){
+ const row=document.createElement("div"); row.className="row"; row.id="row-"+p.k;
+ const name=p.big?p.n:titleCase(p.n);
+ row.innerHTML=`<label class="name" for="s-${p.k}">${name}</label>
+  <input type="range" id="s-${p.k}" min="-3" max="4" step="1" value="${state[p.k]}">
+  <span class="tier" title="Click to reset" role="button" tabindex="0">normal</span>`;
+ host.appendChild(row);
+ const r=row.querySelector("input"), t=row.querySelector(".tier");
+ r.addEventListener("input",()=>{state[p.k]=+r.value;update()});
+ const reset=()=>{state[p.k]=0;update()};
+ t.addEventListener("click",reset); t.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();reset()}});
+}
+function buildWardrobe(){
+ const host=$("costume"); host.innerHTML="";
+ WARDROBES[wardrobe].items.forEach(i=>makeRow(i,host));
+ $("wearLine").textContent="Outfit: "+WARDROBES[wardrobe].wear.replace(/^wearing /,"");
+ document.querySelectorAll("#wardrobes .chip").forEach(c=>c.setAttribute("aria-pressed",c.dataset.w===wardrobe));
+}
+BODY.forEach(p=>makeRow(p,$("body")));
+ACC.forEach(p=>makeRow(p,$("acc")));
+Object.entries({...WARDROBES,none:{label:"None"}}).forEach(([k,w])=>{
+ const b=document.createElement("button"); b.className="chip"; b.dataset.w=k; b.textContent=w.label;
+ b.addEventListener("click",()=>{wardrobe=k;buildWardrobe();update()}); $("wardrobes").appendChild(b);
+});
+WARDROBES.none={label:"None",wear:"wearing the outfit described above",items:[]};
+buildWardrobe();
+
+const scaleOf=v=>v>=0?1+v*0.28:1+v*0.2;
+const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+const list=a=>a.length<2?a.join(""):a.slice(0,-1).join(", ")+" and "+a[a.length-1];
+const activeItems=()=>[...BODY,...WARDROBES[wardrobe].items,...ACC];
+
+function update(){
+ const all=activeItems();
+ for(const p of all){
+  const row=$("row-"+p.k); if(!row) continue;
+  const v=state[p.k], r=row.querySelector("input");
+  r.value=v; r.setAttribute("aria-valuetext",TIERS[v]);
+  row.querySelector(".tier").textContent=v===0?"normal":(v>0?"+":"")+v+" · "+TIERS[v];
+  row.classList.toggle("on",v!==0);
+ }
+ BODY.forEach(p=>document.querySelectorAll(`[data-k="${p.k}"]`).forEach(el=>el.style.transform=`scale(${scaleOf(state[p.k])})`));
+ const slotV={};
+ [...WARDROBES[wardrobe].items,...ACC].forEach(i=>{const v=state[i.k];if(v!==0&&Math.abs(v)>=Math.abs(slotV[i.s]||0))slotV[i.s]=v});
+ document.querySelectorAll("[data-slot]").forEach(el=>{const v=slotV[el.dataset.slot];
+  el.classList.toggle("show",v!==undefined); el.style.transform=`scale(${v?scaleOf(v):1})`});
+
+ const changed=all.filter(p=>state[p.k]!==0).sort((a,b)=>Math.abs(state[b.k])-Math.abs(state[a.k])||state[b.k]-state[a.k]);
+ const st=STYLES[$("style").value], subj=$("subject").value.trim()||"a fashion model";
+ const scene=$("scene").value.trim(), brand=$("brand").value.trim(), lock=$("lock").checked;
+ const bigs=changed.filter(p=>state[p.k]>0), smalls=changed.filter(p=>state[p.k]<0);
+ const maxAbs=changed.length?Math.max(...changed.map(p=>Math.abs(state[p.k]))):0;
+ const mark=p=>{const ph=esc(phrase(p,state[p.k]));
+  if(format==="sd") return `<b>(${ph}:${(1+Math.abs(state[p.k])*0.1).toFixed(1)})</b>`;
+  return `<b>${ph}</b>`};
+ const out=[];
+ const wear=wardrobe==="none"?"":", "+WARDROBES[wardrobe].wear;
+ out.push(`${st.lead} ${esc(subj)}${esc(wear)}${scene?", "+esc(scene):""}.`);
+ if(brand) out.push(`Styled for ${esc(brand)}, with that label's signature cuts, materials and design details.`);
+ if(!changed.length){
+  out.push("Natural, true-to-life human proportions and garment fit throughout.");
+ } else {
+  const tone=maxAbs>=4?"wildly surreal, exaggerated proportions":maxAbs>=3?"strongly exaggerated, larger-than-life proportions":maxAbs>=2?"boldly exaggerated proportions":"subtly altered proportions";
+  const seg=[];
+  if(bigs.length) seg.push(list(bigs.map(mark)));
+  if(smalls.length) seg.push(`${bigs.length?"contrasted with ":""}${list(smalls.map(mark))}`);
+  out.push(`The look is built around ${tone}: ${seg.join(", ")}.`);
+  if(maxAbs>=2) out.push("The scale differences read instantly, with every altered element shown at its full stated size relative to the body, never shrunk back toward normal.");
+  if(st.photo) out.push("The exaggerated proportions look physically real, as if achieved with couture tailoring and practical prosthetics and captured in-camera: real fabric weight, folds and drape, real skin, consistent lighting and contact shadows, not cartoonish or CGI.");
+  else out.push("Every rescaled element keeps believable structure, texture, lighting and shadows, integrated into one coherent figure.");
+  if(lock){
+   const keep=BODY.filter(p=>state[p.k]===0).map(p=>p.n.toLowerCase());
+   if(keep.length===BODY.length) out.push("The body itself keeps natural human proportions; only the wardrobe is rescaled.");
+   else if(keep.length) out.push(`Everything else, including the ${list(keep)}, stays at natural human proportions.`);
+  }
+ }
+ out.push(`${titleCase(FRAMES[$("frame").value].t)}, ${LIGHTS[$("light").value].t}, ${st.tail}.`);
+ let text=out.join(" ");
+ if(format==="mj") text+=` --ar ${$("frame").value==="wide"?"3:2":"4:5"}${st.photo?" --style raw":""}${maxAbs>=3?" --stylize 300":""}`;
+ $("prompt").innerHTML=text;
+ if(format==="sd"){
+  $("negWrap").hidden=false;
+  const neg=["extra limbs","extra fingers","fused fingers","duplicate body parts","disfigured anatomy","blurry","cropped feet","text","watermark"];
+  if(st.photo) neg.push("cartoon","illustration","3d render","plastic skin");
+  if(bigs.length) neg.unshift("normal proportions","realistic proportions");
+  $("neg").textContent=neg.join(", ");
+ } else $("negWrap").hidden=true;
+ $("count").textContent=changed.length?`${changed.length} element${changed.length>1?"s":""} rescaled`:"Everything at normal";
+ $("words").textContent=$("prompt").textContent.split(/\s+/).filter(Boolean).length+" words";
+}
+
+["subject","scene","brand","style","light","frame","lock"].forEach(id=>{$(id).addEventListener("input",update);$(id).addEventListener("change",update)});
+$("style").addEventListener("change",()=>{$("light").value=STYLES[$("style").value].light;update()});
+document.querySelectorAll(".seg button").forEach(b=>b.addEventListener("click",()=>{
+ format=b.dataset.f; document.querySelectorAll(".seg button").forEach(x=>x.setAttribute("aria-pressed",x===b)); update()}));
+$("reset").addEventListener("click",()=>{Object.keys(state).forEach(k=>state[k]=0);update()});
+$("random").addEventListener("click",()=>{
+ Object.keys(state).forEach(k=>state[k]=0);
+ const pool=[...activeItems()].sort(()=>Math.random()-.5).slice(0,2+Math.floor(Math.random()*3));
+ pool.forEach((p,i)=>state[p.k]=i===0?3+Math.floor(Math.random()*2):(Math.random()<.7?1+Math.floor(Math.random()*3):-(1+Math.floor(Math.random()*3))));
+ update()});
+$("copy").addEventListener("click",async e=>{
+ let t=$("prompt").textContent;
+ if(format==="sd") t+="\n\nNegative prompt: "+$("neg").textContent;
+ const b=e.currentTarget;
+ try{await navigator.clipboard.writeText(t);b.textContent="Copied"}
+ catch{const r=document.createRange();r.selectNodeContents($("prompt"));const s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent="Selected, press Ctrl+C"}
+ setTimeout(()=>b.textContent="Copy prompt",1600)});
+update();
+</script>
+
+</body></html>
